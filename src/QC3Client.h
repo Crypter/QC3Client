@@ -14,7 +14,7 @@ class QC3ClientClass {
     };
     uint8_t pinsInit = 0, qcInit = 0;
     uint8_t pins[4];
-    uint16_t voltageLevel = 50;
+    uint16_t voltageLevel = 5000;
     uint32_t initTimer = 0;
     uint8_t continuousMode = 0;
 
@@ -22,25 +22,25 @@ class QC3ClientClass {
 
       if (pin != dp && pin != dn) return;
 
-      QC3Pins dX10k = static_cast<QC3ClientClass::QC3Pins>(pin - 4);
-      QC3Pins dX2k2 = static_cast<QC3ClientClass::QC3Pins>(pin - 2);
+      uint8_t dX10k = pins[(uint8_t)pin - 4];
+      uint8_t dX2k2 = pins[(uint8_t)pin - 2];
 
       if (milliVolts == 0) {
         pinMode(dX2k2, OUTPUT);
         pinMode(dX10k, OUTPUT);
         digitalWrite(dX2k2, LOW);
         digitalWrite(dX10k, LOW);
-      } else if (milliVolts == 33) {
+      } else if (milliVolts == 3300) {
         pinMode(dX2k2, OUTPUT);
         pinMode(dX10k, OUTPUT);
         digitalWrite(dX2k2, HIGH);
         digitalWrite(dX10k, HIGH);
-      } else if (milliVolts == 6) {
+      } else if (milliVolts == 600) {
         pinMode(dX2k2, OUTPUT);
         pinMode(dX10k, OUTPUT);
         digitalWrite(dX2k2, LOW);
         digitalWrite(dX10k, HIGH);
-      } else if (milliVolts == 27) {
+      } else if (milliVolts == 2700) { //never used
         pinMode(dX2k2, OUTPUT);
         pinMode(dX10k, OUTPUT);
         digitalWrite(dX2k2, HIGH);
@@ -67,29 +67,40 @@ class QC3ClientClass {
       }
     }
 
-    uint8_t begin(uint8_t blocking = 1, uint8_t QC2Mode = 0) {
+    uint8_t begin(uint8_t QC2Mode = 0, uint8_t blocking = 1) {
       if (pinsInit) {
         if (initTimer == 0) {
-          for (uint8_t i = 0; i < 4; i++) {
-            pinMode(pins[i], OUTPUT);
-          }
-          setPinVoltage(dp, 6);
+          setPinVoltage(dp, 600);
           setPinVoltage(dn, -1);
+
           if (blocking) {
             delay(1300);
+            setPinVoltage(dp, 600);
             setPinVoltage(dn, 0);
-            qcInit = 3 - (!!QC2Mode);
+            delay(100);
             initTimer = 1;
-            continuousMode = 0;
+            qcInit = 3 - (!!QC2Mode);
+            if (qcInit == 3) { //QC3 handshake
+              setPinVoltage(dp, 600);
+              setPinVoltage(dn, 3300);
+              delay(100); //stabilize
+              voltageLevel = 5000;
+            }
             return 0;
           }
           initTimer = millis() + 1; // +1 to avoid millis() = 0 bug on super fast startup
           return 1;
         } else if (blocking == 0 && millis() - initTimer > 1300) {
-          setPinVoltage(dp, 6);
+          setPinVoltage(dp, 600);
           setPinVoltage(dn, 0);
-          qcInit = 1;
-          continuousMode = 0;
+          delay(100);
+          qcInit = 3 - (!!QC2Mode);
+          if (qcInit == 3) { //QC3 handshake
+            setPinVoltage(dp, 600);
+            setPinVoltage(dn, 3300);
+            delay(100); //stabilize
+            voltageLevel = 50;
+          }
           return 0;
         }
       } else if (qcInit) {
@@ -104,76 +115,75 @@ class QC3ClientClass {
       setPinVoltage(dn, 0);
       initTimer = 0;
       qcInit = 0;
-      continuousMode = 0;
     }
 
-    float setVoltage(float volts) {
-      if (qcInit && volts <= 12.0 && volts >= 3.6) {
-        uint8_t integerVolts = volts * 10;
-        if (integerVolts % 2) {
-          integerVolts --;
-        }
+    uint16_t setMillivolts(uint16_t millivolts) {
+      if (qcInit && millivolts <= 12000 && millivolts >= 3600) {
+        uint16_t normalizedMillivolts = millivolts / 100;
 
-        if (integerVolts == voltageLevel) return (float)voltageLevel / 10.0;
+        if (normalizedMillivolts % 2) {
+          normalizedMillivolts --;
+        }
+        normalizedMillivolts *= 100;
+
+        if (normalizedMillivolts == voltageLevel) return voltageLevel;
 
         if (qcInit == 3) {
           if (continuousMode == 0) { //handshake
-            setPinVoltage(dp, 6);
-            setPinVoltage(dn, 33);
+            setPinVoltage(dp, 600);
+            setPinVoltage(dn, 3300);
             delay(1);
             continuousMode = 1;
-            voltageLevel = 50;
+            voltageLevel = 5000;
           }
 
-          while (voltageLevel < integerVolts ) {
-            setPinVoltage(dp, 33);
-            setPinVoltage(dn, 33);
+          while (voltageLevel < normalizedMillivolts && voltageLevel < 12000 ) {
+            setPinVoltage(dp, 3300);
+            setPinVoltage(dn, 3300);
             delay(1);
-            setPinVoltage(dp, 6);
-            setPinVoltage(dn, 33);
-            voltageLevel += 2;
-          }
-          while (voltageLevel > integerVolts) {
-            setPinVoltage(dp, 6);
-            setPinVoltage(dn, 6);
+            setPinVoltage(dp, 600);
+            setPinVoltage(dn, 3300);
             delay(1);
-            setPinVoltage(dp, 6);
-            setPinVoltage(dn, 33);
-            voltageLevel -= 2;
+            voltageLevel += 200;
           }
-
-        } else if (qcInit == 2 && (integerVolts == 120 || integerVolts == 90 || integerVolts == 50)) {
-          switch (integerVolts) {
-            case 120:
-              setPinVoltage(dp, 6);
-              setPinVoltage(dn, 6);
+          while (voltageLevel > normalizedMillivolts && voltageLevel > 3600) {
+            setPinVoltage(dp, 600);
+            setPinVoltage(dn, 600);
+            delay(1);
+            setPinVoltage(dp, 600);
+            setPinVoltage(dn, 3300);
+            delay(1);
+            voltageLevel -= 200;
+          }
+        } else if (qcInit == 2 && (normalizedMillivolts == 12000 || normalizedMillivolts == 9000 || normalizedMillivolts == 5000)) {
+          switch (normalizedMillivolts) {
+            case 12000:
+              setPinVoltage(dp, 600);
+              setPinVoltage(dn, 600);
               delay(1);
-              voltageLevel = integerVolts;
+              voltageLevel = normalizedMillivolts;
               break;
-            case 90:
-              setPinVoltage(dp, 33);
-              setPinVoltage(dn, 6);
+            case 9000:
+              setPinVoltage(dp, 3300);
+              setPinVoltage(dn, 600);
               delay(1);
-              voltageLevel = integerVolts;
+              voltageLevel = normalizedMillivolts;
               break;
-            case 50:
-              setPinVoltage(dp, 6);
+            case 5000:
+              setPinVoltage(dp, 600);
               setPinVoltage(dn, 0);
               delay(1);
-              voltageLevel = integerVolts;
+              voltageLevel = normalizedMillivolts;
               break;
           }
         } else {
-          return -1;
+          return 0;
         }
-        return (float)voltageLevel / 10.0;
+        return voltageLevel;
       }
-      return -1;
+      return 0;
     }
 
-  float getVoltage(){
-    return (float)voltageLevel / 10.0;
-  }
 };
 
 
