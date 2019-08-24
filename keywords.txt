@@ -1,0 +1,14 @@
+# Syntax Coloring Map For QC3Client library
+
+# Library (KEYWORD3)
+QC3Client	KEYWORD3
+
+# Datatypes (KEYWORD1)
+QC3Client	KEYWORD1
+
+# Methods and Functions (KEYWORD2)
+begin	KEYWORD2
+end	KEYWORD2
+configure	KEYWORD2
+setVoltage	KEYWORD2
+getVoltage	KEYWORD2
