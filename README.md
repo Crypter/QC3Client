@@ -7,12 +7,12 @@ Try not to power your device from the same charger without voltage regulator, yo
 
 LM1117 and AMS1117 regulators can usually handle 9V if the device is not power hungry, and 12V if you are really careful.
 
-### Components needed:
+### Components needed
 
 * 2 x 10kOhm resistors
 * 2 x 2.2kOhm resistors
 
-### Wiring Configuration:
+### Wiring Configuration
 ```
 GPIO(Dp_2k2) - [2.2kOhm] -
                            \
@@ -28,7 +28,19 @@ GPIO(Dn_10k) - [10kOhm]  -
 
 GND --------------------------- USB Black wire
 ```
+### Usage
+```
+#include <QC3Client.h>
 
+void setup(){
+  QC3Client.configure(Dp_10k, Dp_2k2, Dn_10k, Dn_2k2);
+  QC3Client.begin();
+  QC3Client.setMillivolts(12000);
+}
+
+void loop(){
+}
+```
 ### Credits
 Made with the documentation and info provided at:
 
