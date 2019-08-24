@@ -171,6 +171,9 @@ class QC3ClientClass {
       return -1;
     }
 
+  float getVoltage(){
+    return (float)voltageLevel / 10.0;
+  }
 };
 
 
