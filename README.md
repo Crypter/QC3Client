@@ -26,3 +26,9 @@ GPIO(Dn_10k) - [10kOhm]  -
 
 GND --------------------------- USB Black wire
 ```
+
+### Credits
+Made with the documentation and info provided at:
+
+* http://blog.deconinck.info/post/2017/08/09/Turning-a-Quick-Charge-3.0-charger-into-a-variable-voltage-power-supply
+* https://www.hackster.io/PSoC_Rocks/hacking-qualcomm-quick-charge-qc-2-0-3-0-with-attiny85-b7627d
