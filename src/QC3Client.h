@@ -184,6 +184,9 @@ class QC3ClientClass {
       return 0;
     }
 
+  uint16_t getMillivolts(){
+    return voltageLevel;
+  }
 };
 
 
