@@ -17,6 +17,7 @@ GPIO(Dn_2k2) - [2.2kOhm] -
                             > - USB White wire
                            /
 GPIO(Dn_10k) - [10kOhm]  -
+GND --------------------------- USB Black wire
 */
 
 #define Dp_10k 14 //USB green wire, data positive
