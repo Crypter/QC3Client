@@ -1,4 +1,4 @@
-#include "QC3Client.h"
+#include <QC3Client.h>
 
 /*
 Components needed:
