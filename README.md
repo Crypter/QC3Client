@@ -1,6 +1,8 @@
 # QC3Client
 QuickCharge 3.0 Client for Arduino
 
+This library is intended for devices with 3.3v logic, such as ESP8266, ESP32, or Arduino boards powered at 3.3v. Usage with 5v logic is not tested.
+
 Try not to power your device from the same charger without voltage regulator, you might damage it!
 
 LM1117 and AMS1117 regulators can usually handle 9V if the device is not power hungry, and 12V if you are really careful.
