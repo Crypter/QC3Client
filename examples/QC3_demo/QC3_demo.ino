@@ -47,22 +47,22 @@ void setup() {
 
 void loop() {
   Serial.print("Voltage: ");
-  Serial.println(QC3Client.setMillivolts(5000)) / 1000.0); //USB 5.0V
+  Serial.println(QC3Client.setMillivolts(5000) / 1000.0); //USB 5.0V
   delay(2000);
   
   Serial.print("Voltage: ");
-  Serial.println(QC3Client.setMillivolts(5200)) / 1000.0); //USB 5.2V, little boost for some devices
+  Serial.println(QC3Client.setMillivolts(5200) / 1000.0); //USB 5.2V, little boost for some devices
   delay(2000);
   
   Serial.print("Voltage: ");
-  Serial.println(QC3Client.setMillivolts(7400)) / 1000.0);  //7.4V Lithium 2S battery
+  Serial.println(QC3Client.setMillivolts(7400) / 1000.0);  //7.4V Lithium 2S battery
   delay(2000);
   
   Serial.print("Voltage: ");
-  Serial.println(QC3Client.setMillivolts(9000)) / 1000.0); //9V Adapter
+  Serial.println(QC3Client.setMillivolts(9000) / 1000.0); //9V Adapter
   delay(2000);
   
   Serial.print("Voltage: ");
-  Serial.println(QC3Client.setMillivolts(12000)) / 1000.0); //12V Car battery
+  Serial.println(QC3Client.setMillivolts(12000) / 1000.0); //12V Car battery
   delay(2000);
 }
