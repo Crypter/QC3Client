@@ -18,7 +18,7 @@ class QC3ClientClass {
     uint32_t initTimer = 0;
     uint8_t continuousMode = 0;
 
-    void setPinVoltage(QC3Pins pin, int8_t milliVolts) {
+    void setPinVoltage(QC3Pins pin, int16_t milliVolts) {
 
       if (pin != dp && pin != dn) return;
 
